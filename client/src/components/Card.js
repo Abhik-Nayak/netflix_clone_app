@@ -13,10 +13,10 @@ import { useDispatch } from "react-redux";
 import { removeMovieFromLiked } from "../store";
 import video from "../assets/video.mov";
 
-
-function Card({ movieData, isLiked = false }) {
-  const [isHovered, setIsHovered] = useState(false);
+export default React.memo(function Card({ index, movieData, isLiked = false }) {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [isHovered, setIsHovered] = useState(false);
   const [email, setEmail] = useState(undefined);
 
   onAuthStateChanged(firebaseAuth, (currentUser) => {
@@ -24,6 +24,7 @@ function Card({ movieData, isLiked = false }) {
       setEmail(currentUser.email);
     } else navigate("/login");
   });
+
   const addToList = async () => {
     try {
       await axios.post("http://localhost:5000/api/user/add", {
@@ -34,22 +35,38 @@ function Card({ movieData, isLiked = false }) {
       console.log(error);
     }
   };
+
   return (
     <Container
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <img src={`https://image.tmdb.org/t/p/w500${movieData.image}`} alt="movie" />
+      <img
+        src={`https://image.tmdb.org/t/p/w500${movieData.image}`}
+        alt="card"
+        onClick={() => navigate("/player")}
+      />
+
       {isHovered && (
         <div className="hover">
           <div className="image-video-container">
-            <img src={`https://image.tmdb.org/t/p/w500${movieData.image}`} alt="movie"
+            <img
+              src={`https://image.tmdb.org/t/p/w500${movieData.image}`}
+              alt="card"
               onClick={() => navigate("/player")}
             />
-            <video src={video} autoPlay={true} loop muted onClick={() => navigate("/player")} />
+            <video
+              src={video}
+              autoPlay={true}
+              loop
+              muted
+              onClick={() => navigate("/player")}
+            />
           </div>
           <div className="info-container flex column">
-            <h3 className="name" onClick={() => navigate("/player")}>{movieData.name}</h3>
+            <h3 className="name" onClick={() => navigate("/player")}>
+              {movieData.name}
+            </h3>
             <div className="icons flex j-between">
               <div className="controls flex">
                 <IoPlayCircleSharp
@@ -59,7 +76,14 @@ function Card({ movieData, isLiked = false }) {
                 <RiThumbUpFill title="Like" />
                 <RiThumbDownFill title="Dislike" />
                 {isLiked ? (
-                  <BsCheck title="Remove from List" />
+                  <BsCheck
+                    title="Remove from List"
+                    onClick={() =>
+                      dispatch(
+                        removeMovieFromLiked({ movieId: movieData.id, email })
+                      )
+                    }
+                  />
                 ) : (
                   <AiOutlinePlus title="Add to my list" onClick={addToList} />
                 )}
@@ -78,10 +102,9 @@ function Card({ movieData, isLiked = false }) {
           </div>
         </div>
       )}
-
     </Container>
-  )
-}
+  );
+});
 
 const Container = styled.div`
   max-width: 230px;
@@ -159,6 +182,3 @@ const Container = styled.div`
     }
   }
 `;
-
-
-export default Card

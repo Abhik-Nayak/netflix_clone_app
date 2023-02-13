@@ -18,4 +18,6 @@ mongoose.connect("mongodb://localhost:27017/netflix",{
 }).catch(err => console.log(err));
 
 app.use("/api/user",userRoutes);
-app.listen(5000, console.log("run"))
+app.listen(5000, () => {
+    console.log("server started on port 5000");
+  });

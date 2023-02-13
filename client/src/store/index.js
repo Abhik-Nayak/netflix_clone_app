@@ -6,6 +6,7 @@ const initialState = {
     movies: [],
     genresLoaded: false,
     genres: [],
+    selectedmovies: []
 };
 
 export const getGenres = createAsyncThunk("netflix/genres", async () => {
@@ -46,15 +47,15 @@ const getRawData = async (api, genres, paging) => {
 export const fetchDataByGenre = createAsyncThunk(
     "netflix/genre",
     async ({ genre, type }, thunkAPI) => {
-      const {
-        netflix: { genres },
-      } = thunkAPI.getState();
-      return getRawData(
-        `${TMDB_BASE_URL}/discover/${type}?api_key=${API_KEY}&with_genres=${genre}`,
-        genres
-      );
+        const {
+            netflix: { genres },
+        } = thunkAPI.getState();
+        return getRawData(
+            `${TMDB_BASE_URL}/discover/${type}?api_key=${API_KEY}&with_genres=${genre}`,
+            genres
+        );
     }
-  );
+);
 
 export const fetchMovies = createAsyncThunk("netflix/trending", async ({ type }, thunkApi) => {
     const { netflix: { genres } } = thunkApi.getState();
@@ -63,14 +64,30 @@ export const fetchMovies = createAsyncThunk("netflix/trending", async ({ type },
         genres,
         true
     );
-    const data = getRawData(
-        `${TMDB_BASE_URL}/trending/${type}/week?api_key=${API_KEY}`,
-        genres,
-        true
-    );
-    console.log(data);
 }
 );
+export const getUsersLikedMovies = createAsyncThunk(
+    "netflix/getLiked",
+    async (email) => {
+        const {
+            data: { movies },
+        } = await axios.get(`http://localhost:5000/api/user/getlist/${email}`);
+        return movies;
+    }
+);
+
+export const removeMovieFromLiked = createAsyncThunk(
+    "netflix/deleteLiked",
+    async ({ movieId, email }) => {
+      const {
+        data: { movies },
+      } = await axios.put("http://localhost:5000/api/user/remove", {
+        email,
+        movieId,
+      });
+      return movies;
+    }
+  );
 const NetflixSlice = createSlice({
     name: "Netflix",
     initialState,
@@ -79,11 +96,18 @@ const NetflixSlice = createSlice({
             state.genres = action.payload;
             state.genresLoaded = true;
         });
-        builder.addCase(fetchMovies.fulfilled, (state,action)=> {
+        builder.addCase(fetchMovies.fulfilled, (state, action) => {
             state.movies = action.payload;
         });
         builder.addCase(fetchDataByGenre.fulfilled, (state, action) => {
             state.movies = action.payload;
+        });
+        builder.addCase(getUsersLikedMovies.fulfilled, (state, action) => {
+            state.selectedmovies = action.payload;
+        });
+        builder.addCase(removeMovieFromLiked.fulfilled, (state, action) => {
+            state.movies = action.payload;
+            // state.genresLoaded = true;
           });
     },
 });
