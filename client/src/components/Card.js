@@ -17,6 +17,23 @@ import video from "../assets/video.mov";
 function Card({ movieData, isLiked = false }) {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
+  const [email, setEmail] = useState(undefined);
+
+  onAuthStateChanged(firebaseAuth, (currentUser) => {
+    if (currentUser) {
+      setEmail(currentUser.email);
+    } else navigate("/login");
+  });
+  const addToList = async () => {
+    try {
+      await axios.post("http://localhost:5000/api/user/add", {
+        email,
+        data: movieData,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <Container
       onMouseEnter={() => setIsHovered(true)}
@@ -25,7 +42,7 @@ function Card({ movieData, isLiked = false }) {
       <img src={`https://image.tmdb.org/t/p/w500${movieData.image}`} alt="movie" />
       {isHovered && (
         <div className="hover">
-          <div className="image-vide-container">
+          <div className="image-video-container">
             <img src={`https://image.tmdb.org/t/p/w500${movieData.image}`} alt="movie"
               onClick={() => navigate("/player")}
             />
@@ -44,7 +61,7 @@ function Card({ movieData, isLiked = false }) {
                 {isLiked ? (
                   <BsCheck title="Remove from List" />
                 ) : (
-                  <AiOutlinePlus title="Add to my list" />
+                  <AiOutlinePlus title="Add to my list" onClick={addToList} />
                 )}
               </div>
               <div className="info">

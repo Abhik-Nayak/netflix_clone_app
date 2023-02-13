@@ -9,13 +9,16 @@ import Slider from '../components/Slider';
 import { useNavigate } from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import { fetchMovies, getGenres } from '../store';
+import { onAuthStateChanged } from "firebase/auth";
+import { firebaseAuth } from "../utils/firebase-config";
+
 
 const Netflix = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
   const genresLoaded = useSelector((state) => state.netflix.genresLoaded);
   const movies = useSelector((state)=> state.netflix.movies);
-  console.log(movies);
+  // console.log(movies);
   const dispatch = useDispatch();
 
   useEffect(()=>{
@@ -25,6 +28,11 @@ const Netflix = () => {
   useEffect(()=>{
     if(genresLoaded) dispatch(fetchMovies({type:"all"}));
   },[genresLoaded])
+
+  onAuthStateChanged(firebaseAuth, (currentUser) => {
+    if (!currentUser) navigate("/login");
+  });
+
   window.onscroll = () =>{
     setIsScrolled(window.pageYOffset === 0 ? false : true);
     return () => (window.onscroll = null)
