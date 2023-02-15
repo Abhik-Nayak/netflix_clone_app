@@ -11,8 +11,6 @@ import { useDispatch, useSelector } from "react-redux";
 
 export default function UserListedMovies() {
   const movies = useSelector((state) => state.netflix.selectedmovies);
-  const check = useSelector((state) => state.netflix.genresLoaded);
-  console.log(check);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -28,7 +26,7 @@ export default function UserListedMovies() {
       console.log("called");
       dispatch(getUsersLikedMovies(email));
     }
-  }, [email,!check]);
+  }, [email]);
 
   window.onscroll = () => {
     setIsScrolled(window.pageYOffset === 0 ? false : true);
