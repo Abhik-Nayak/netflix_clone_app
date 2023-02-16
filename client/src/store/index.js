@@ -6,7 +6,8 @@ const initialState = {
     movies: [],
     genresLoaded: false,
     genres: [],
-    selectedmovies: []
+    selectedmovies: [],
+    response:{}
 };
 
 export const getGenres = createAsyncThunk("netflix/genres", async () => {
@@ -66,6 +67,7 @@ export const fetchMovies = createAsyncThunk("netflix/trending", async ({ type },
     );
 }
 );
+
 export const getUsersLikedMovies = createAsyncThunk(
     "netflix/getLiked",
     async (email) => {
@@ -76,18 +78,32 @@ export const getUsersLikedMovies = createAsyncThunk(
     }
 );
 
+export const createUser = createAsyncThunk(
+    "netflix/signup",
+    async ({ email, password }) => {
+        console.log(email,password)
+        const {data : {response}} = await axios.post("http://localhost:5000/api/user/signup", {
+            email,
+            password
+        });
+        console.log(response);
+        return response;
+
+    }
+);
+
 export const removeMovieFromLiked = createAsyncThunk(
     "netflix/deleteLiked",
     async ({ movieId, email }) => {
-      const {
-        data: { movies },
-      } = await axios.put("http://localhost:5000/api/user/remove", {
-        email,
-        movieId,
-      });
-      return movies;
+        const {
+            data: { movies },
+        } = await axios.put("http://localhost:5000/api/user/remove", {
+            email,
+            movieId,
+        });
+        return movies;
     }
-  );
+);
 const NetflixSlice = createSlice({
     name: "Netflix",
     initialState,
@@ -102,13 +118,16 @@ const NetflixSlice = createSlice({
         builder.addCase(fetchDataByGenre.fulfilled, (state, action) => {
             state.movies = action.payload;
         });
+        builder.addCase(createUser.fulfilled, (state,action) => {
+            state.response = action.payload;
+        })
         builder.addCase(getUsersLikedMovies.fulfilled, (state, action) => {
             state.selectedmovies = action.payload;
         });
         builder.addCase(removeMovieFromLiked.fulfilled, (state, action) => {
             state.movies = action.payload;
             // state.genresLoaded = true;
-          });
+        });
     },
 });
 

@@ -5,9 +5,14 @@ import styled from "styled-components";
 import BackgroundImage from '../components/BackgroundImage';
 import Header from "../components/Header";
 import { firebaseAuth } from '../utils/firebase-config';
+import { useDispatch ,useSelector} from 'react-redux';
+import { createUser } from '../store';
 
 const Signup = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const response = useSelector(state =>state.netflix.response);
+  console.log(response);
   const [showPassword, setShowPassword] = useState(false);
   const [formValues, setFormValues] = useState({
     email: "",
@@ -17,7 +22,9 @@ const Signup = () => {
   const handleSignIn = async () => {
     try{
     const {email, password} = formValues;
-    await createUserWithEmailAndPassword(firebaseAuth,email,password).then(console.log("success"));
+    let regex= /^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]$/;
+    dispatch(createUser({email,password}))
+    // await createUserWithEmailAndPassword(firebaseAuth,email,password).then(console.log("success"));
     } catch(err) {
       console.log(err);
     }
