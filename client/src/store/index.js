@@ -7,7 +7,7 @@ const initialState = {
     genresLoaded: false,
     genres: [],
     selectedmovies: [],
-    response:{}
+    response: {}
 };
 
 export const getGenres = createAsyncThunk("netflix/genres", async () => {
@@ -81,13 +81,16 @@ export const getUsersLikedMovies = createAsyncThunk(
 export const createUser = createAsyncThunk(
     "netflix/signup",
     async ({ email, password }) => {
-        console.log(email,password)
-        const {data : {response}} = await axios.post("http://localhost:5000/api/user/signup", {
-            email,
-            password
-        });
-        console.log(response);
-        return response;
+        console.log(email, password)
+        if (email && password) {
+            const { data: { response } } = await axios.post("http://localhost:5000/api/user/signup", {
+                email,
+                password
+            });
+            console.log(response);
+            return response;
+        }
+
 
     }
 );
@@ -118,7 +121,7 @@ const NetflixSlice = createSlice({
         builder.addCase(fetchDataByGenre.fulfilled, (state, action) => {
             state.movies = action.payload;
         });
-        builder.addCase(createUser.fulfilled, (state,action) => {
+        builder.addCase(createUser.fulfilled, (state, action) => {
             state.response = action.payload;
         })
         builder.addCase(getUsersLikedMovies.fulfilled, (state, action) => {

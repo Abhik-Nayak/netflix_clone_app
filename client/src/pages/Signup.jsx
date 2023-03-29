@@ -1,17 +1,17 @@
 import { createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from "styled-components";
 import BackgroundImage from '../components/BackgroundImage';
 import Header from "../components/Header";
 import { firebaseAuth } from '../utils/firebase-config';
-import { useDispatch ,useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { createUser } from '../store';
 
 const Signup = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const response = useSelector(state =>state.netflix.response);
+  const response = useSelector(state => state.netflix.response);
   console.log(response);
   const [showPassword, setShowPassword] = useState(false);
   const [formValues, setFormValues] = useState({
@@ -20,19 +20,23 @@ const Signup = () => {
   })
 
   const handleSignIn = async () => {
-    try{
-    const {email, password} = formValues;
-    let regex= /^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]$/;
-    dispatch(createUser({email,password}))
-    // await createUserWithEmailAndPassword(firebaseAuth,email,password).then(console.log("success"));
-    } catch(err) {
+    try {
+      const { email, password } = formValues;
+      let regex = "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]$";
+      dispatch(createUser({ email, password }))
+    } catch (err) {
       console.log(err);
     }
   }
-  onAuthStateChanged(firebaseAuth, (currentUser)=> {
-    console.log(currentUser);
-    if(currentUser) navigate("/");
-  });
+
+  useEffect(()=>{
+    dispatch(createUser())
+  },[])
+    if (response.status === 200) 
+    {
+      alert("Signup successfully")
+      navigate("/login");
+    }
   return (
     <Container>
       <BackgroundImage />
@@ -103,7 +107,7 @@ const Container = styled.div`
       .form{
         display: grid;
         grid-template-columns: ${({ showPassword }) =>
-              showPassword ? "1fr 1fr" : "2fr 1fr"};
+    showPassword ? "1fr 1fr" : "2fr 1fr"};
         width: 60%;
         input{
           color: black;
